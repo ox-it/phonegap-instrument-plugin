@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+            id="uk.ac.ox.it.instrument" version="0.0.1">
+        <name>Instrument</name>
+        <description>Resounding Instrument Plugin</description>
+        <license>Apache 2.0</license>
+        <keywords>cordova, midi, instrument, ios</keywords>
+
+        <js-module src="www/instrument_plugin_test.js" name="Instrument">
+            <clobbers target="Instrument" />
+        </js-module>
+
+        <platform name="ios">
+            <config-file target="config.xml" parent="/*">
+                <feature name="Instrument">
+                    <param name="ios-package" value="CDVInstrument"/>
+                </feature>
+            </config-file>
+            <header-file src="src/ios/CDVInstrument.h" />
+            <source-file src="src/ios/CDVInstrument.m" />
+        </platform>
+
+    </plugin>
