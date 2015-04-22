@@ -11,7 +11,12 @@
 #import <AVFoundation/AVFoundation.h>
 
 @interface CDVInstrument : CDVPlugin
+{
+    bool isInitialised;
+    bool hasSoundFont;
+}
 
+-(void)setup;
 
 @property(nonatomic) AVAudioEngine *engine;
 @property(nonatomic) AVAudioUnitSampler *instrument;

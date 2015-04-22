@@ -6,7 +6,7 @@
         <license>Apache 2.0</license>
         <keywords>cordova, midi, instrument, ios</keywords>
 
-        <js-module src="www/instrument_plugin_test.js" name="Instrument">
+        <js-module src="www/instrument_plugin.js" name="Instrument">
             <clobbers target="Instrument" />
         </js-module>
 
