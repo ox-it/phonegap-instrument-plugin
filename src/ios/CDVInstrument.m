@@ -22,7 +22,7 @@
     return self;
 }
 
-- (void)setup:(CDVInvokedUrlCommand*)command {
+- (void)setup{
     //create engine
     self.engine = [[AVAudioEngine alloc] init];
     
@@ -54,7 +54,7 @@
 //Instrument.prototype.loadSoundFont = function(fontName)
 -(void)loadSoundFont:(CDVInvokedUrlCommand*)command {
     if(!isInitialised) {
-        [self setup];
+        [self setup:NULL];
     }
     NSString *fontName = [command.arguments objectAtIndex:0];
     NSBundle *mainBundle = [NSBundle mainBundle];
@@ -77,7 +77,7 @@
     if (hasSoundFont) {
         int noteNumber = [[command.arguments objectAtIndex:0] intValue];
         int velocity = [[command.arguments objectAtIndex:1] intValue];
-        NSLog(@"Playing Note %i", noteNumber);
+        NSLog(@"Playing Note %i with velocity %i", noteNumber, velocity);
         [self.instrument startNote:noteNumber withVelocity:velocity onChannel:0];
     }
     else {

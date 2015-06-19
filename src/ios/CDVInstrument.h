@@ -16,7 +16,7 @@
     bool hasSoundFont;
 }
 
--(void)setup;
+-(void)setup:(CDVInvokedUrlCommand*)command;
 
 @property(nonatomic) AVAudioEngine *engine;
 @property(nonatomic) AVAudioUnitSampler *instrument;
