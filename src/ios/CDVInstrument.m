@@ -22,7 +22,7 @@
     return self;
 }
 
-- (void)setup{
+- (void)setup:(CDVInvokedUrlCommand*)command{
     //create engine
     self.engine = [[AVAudioEngine alloc] init];
     
