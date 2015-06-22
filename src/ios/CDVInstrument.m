@@ -44,8 +44,7 @@
     NSError *audioEngineStartError = nil;
     [self.engine startAndReturnError:&audioEngineStartError];
     if (audioEngineStartError) {
-        NSLog(@"Error starting audio engine");
-        NSLog(audioEngineStartError.description);
+        NSLog(@"Error starting audio engine:%@", audioEngineStartError.description);
     }
     NSLog(@"started audio engine");
     isInitialised = true;
@@ -63,8 +62,7 @@
     NSError *soundFontLoadError = nil;
     [self.instrument loadInstrumentAtURL:instrumentURL error:&soundFontLoadError];
     if (soundFontLoadError) {
-        NSLog(@"Error loading sound font");
-        NSLog(soundFontLoadError.description);
+        NSLog(@"Error loading sound font:%@", soundFontLoadError.description);
     }
     else {
         hasSoundFont = true;
