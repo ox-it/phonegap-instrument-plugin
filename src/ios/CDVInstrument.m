@@ -96,4 +96,16 @@
     
 }
 
+- (void)expression:(CDVInvokedUrlCommand*)command {
+    if (hasSoundFont) {
+        int expression = [[command.arguments objectAtIndex:0] intValue];
+        NSLog(@"Applying expression %i", expression);
+        [self.instrument sendController:11 withValue:expression onChannel:0];
+    }
+    else {
+        NSLog(@"No sound font loaded. Cannot change expression");
+    }
+}
+
+
 @end

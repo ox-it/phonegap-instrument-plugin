@@ -20,6 +20,10 @@ Instrument.prototype.noteOff = function(noteNumber, velocity) {
     exec(null, onError, "Instrument", "noteOff", [noteNumber, velocity]);
 };
 
+Instrument.prototype.expression = function(expression) {
+    exec(null, onError, "Instrument", "expression", [expression]);
+};
+
 var onError = function(err) {
 	console.log("Error");
 	console.log(err);
