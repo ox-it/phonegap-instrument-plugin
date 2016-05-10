@@ -162,4 +162,16 @@
     }
 }
 
+// noteOn(noteNumber, velocity)
+- (void)pitchBend:(CDVInvokedUrlCommand*)command {
+    if (hasSoundFont) {
+        Byte pitchBend = [[command.arguments objectAtIndex:0] intValue];
+        Byte channel = [[command.arguments objectAtIndex:1] intValue];
+        NSLog(@"PitchBend %i", pitchbend);
+        [self.instrument sendPitchBend:noteNumber onChannel:channel];
+    } else {
+        NSLog(@"No sound font loaded. Cannot use pitchBend");
+    }
+}
+
 @end

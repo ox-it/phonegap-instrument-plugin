@@ -40,6 +40,10 @@ proto.loadSoundFontBank = function(name, program, bankMSB, bankLSB, onsuccess, o
     exec(onsuccess, onerror || onError, 'Instrument', 'loadSoundFontBank', [name, program, bankMSB, bankLSB]);
 };
 
+proto.pitchBend = function(pitchBend, channel) {
+    exec(null, onError, 'Instrument', 'pitchBend', [pitchBend, channel || 0]);
+};
+
 function onError(message) {
     console.log(err);
 };
