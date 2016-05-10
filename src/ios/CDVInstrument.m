@@ -167,8 +167,8 @@
     if (hasSoundFont) {
         Byte pitchBend = [[command.arguments objectAtIndex:0] intValue];
         Byte channel = [[command.arguments objectAtIndex:1] intValue];
-        NSLog(@"PitchBend %i", pitchbend);
-        [self.instrument sendPitchBend:noteNumber onChannel:channel];
+        NSLog(@"PitchBend %i", pitchBend);
+        [self.instrument sendPitchBend:pitchBend onChannel:channel];
     } else {
         NSLog(@"No sound font loaded. Cannot use pitchBend");
     }
