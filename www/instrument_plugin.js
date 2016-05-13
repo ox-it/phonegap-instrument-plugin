@@ -41,7 +41,9 @@ proto.loadSoundFontBank = function(name, program, bankMSB, bankLSB, onsuccess, o
 };
 
 proto.pitchBend = function(pitchBend, channel) {
-    exec(null, onError, 'Instrument', 'pitchBend', [pitchBend, channel || 0]);
+    if (pitchBend) {
+      exec(null, onError, 'Instrument', 'pitchBend', [pitchBend, channel || 0]);
+    }
 };
 
 function onError(message) {
