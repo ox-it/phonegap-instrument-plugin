@@ -9,6 +9,9 @@ function Instrument() {
 
 var proto = Instrument.prototype;
 
+PITCHBEND_ZERO_VALUE = 8192;
+UNITS_PER_SEMITONE = 3000;
+
 proto.send = function(args, delay) {
     var status = args[0];
     var data1 = args[1];
@@ -42,7 +45,8 @@ proto.loadSoundFontBank = function(name, program, bankMSB, bankLSB, onsuccess, o
 
 proto.pitchBend = function(pitchBend, channel) {
     if (pitchBend) {
-      exec(null, onError, 'Instrument', 'pitchBend', [pitchBend, channel || 0]);
+      pitchBendUnits = parseInt(UNITS_PER_SEMITONE * pitchBend) + PITCHBEND_ZERO_VALUE;
+      exec(null, onError, 'Instrument', 'pitchBend', [pitchBendUnits, channel || 0]);
     }
 };
 
