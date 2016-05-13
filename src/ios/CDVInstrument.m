@@ -162,7 +162,7 @@
     }
 }
 
-// noteOn(noteNumber, velocity)
+// pitchBend(pitchBend)
 - (void)pitchBend:(CDVInvokedUrlCommand*)command {
     if (hasSoundFont) {
         int pitchBend = [[command.arguments objectAtIndex:0] intValue];
