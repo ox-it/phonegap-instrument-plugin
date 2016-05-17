@@ -8,6 +8,16 @@
 
 #import "CDVInstrument.h"
 
+@interface CDVInstrument ()
+{
+    NSURL *_instrumentURL;
+    Byte _program;
+    Byte _bankMSB;
+    Byte _bankLSB;
+    bool _didLoadProgram;
+}
+@end
+
 @implementation CDVInstrument
 @synthesize engine = _engine;
 
@@ -35,6 +45,11 @@
     }
     NSLog(@"started audio engine");
     isInitialised = true;
+    
+    [[NSNotificationCenter defaultCenter] addObserver: self
+                                         selector:@selector(onAudioConfigurationChange)
+                                             name:AVAudioEngineConfigurationChangeNotification
+                                           object:self.engine];
 }
 
 // loadSoundFont(name)
@@ -45,19 +60,9 @@
         }
         NSString *name = [command.arguments objectAtIndex:0];
         NSBundle *mainBundle = [NSBundle mainBundle];
-        NSURL *instrumentURL = [mainBundle URLForResource:name withExtension:@"sf2" subdirectory:@"www/soundfont"];
-        NSError *soundFontLoadError = nil;
-        [self.instrument loadInstrumentAtURL:instrumentURL error:&soundFontLoadError];
-        ///
-        NSString *payload = nil;
-        if (soundFontLoadError) {
-            payload = @"Error loading sound font:%@", soundFontLoadError.description;
-        } else {
-            payload = @"Loaded sound font";
-            hasSoundFont = true;
-        }
-        NSLog(payload);
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:payload];
+        _instrumentURL = [mainBundle URLForResource:name withExtension:@"sf2" subdirectory:@"www/soundfont"];
+        NSString* result = [self _loadInstrumentAtURL:_instrumentURL];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:result];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
 }
@@ -69,25 +74,47 @@
             [self setup:NULL];
         }
         NSString *name = [command.arguments objectAtIndex:0];
-        Byte program = [[command.arguments objectAtIndex:1] intValue];
-        Byte bankMSB = [[command.arguments objectAtIndex:2] intValue];
-        Byte bankLSB = [[command.arguments objectAtIndex:3] intValue];
+        _program = [[command.arguments objectAtIndex:1] intValue];
+        _bankMSB = [[command.arguments objectAtIndex:2] intValue];
+        _bankLSB = [[command.arguments objectAtIndex:3] intValue];
         NSBundle *mainBundle = [NSBundle mainBundle];
-        NSURL *instrumentURL = [mainBundle URLForResource:name withExtension:@"sf2" subdirectory:@"www/soundfont"];
-        NSError *soundFontLoadError = nil;
-        [self.instrument loadSoundBankInstrumentAtURL:instrumentURL program:program bankMSB:bankMSB bankLSB:bankLSB error:&soundFontLoadError];
-        ///
-        NSString *payload = nil;
-        if (soundFontLoadError) {
-            payload = @"Error loading sound font:%@", soundFontLoadError.description;
-        } else {
-            payload = @"Loaded sound font";
-            hasSoundFont = true;
-        }
-        NSLog(payload);
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:payload];
+        _instrumentURL = [mainBundle URLForResource:name withExtension:@"sf2" subdirectory:@"www/soundfont"];
+        NSString *result = [self _loadSoundBankInstrumentAtURL:_instrumentURL program:_program bankMSB:_bankMSB bankLSB:_bankLSB];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:result];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
+}
+
+
+-(NSString*)_loadInstrumentAtURL:(NSURL*)instrumentURL {
+    NSError *soundFontLoadError = nil;
+    [self.instrument loadInstrumentAtURL:instrumentURL error:&soundFontLoadError];
+    ///
+    NSString *payload = nil;
+    if (soundFontLoadError) {
+        payload = @"Error loading sound font:%@", soundFontLoadError.description;
+    } else {
+        payload = @"Loaded sound font";
+        hasSoundFont = true;
+    }
+    NSLog(payload);
+    return payload;
+}
+
+-(NSString*)_loadSoundBankInstrumentAtURL:(NSURL*)instrumentURL program:(Byte)program bankMSB:(Byte)bankMSB bankLSB:(Byte)bankLSB {
+    
+    NSError *soundFontLoadError = nil;
+    [self.instrument loadSoundBankInstrumentAtURL:_instrumentURL program:program bankMSB:bankMSB bankLSB:bankLSB error:&soundFontLoadError];
+    ///
+    NSString *payload = nil;
+    if (soundFontLoadError) {
+        payload = @"Error loading sound font:%@", soundFontLoadError.description;
+    } else {
+        payload = @"Loaded sound font";
+        hasSoundFont = true;
+    }
+    NSLog(payload);
+    return payload;
 }
 
 // programChange(program, bankMSB, bankLSB, channel)
@@ -101,6 +128,28 @@
     } else {
         NSLog(@"No sound font loaded. Cannot use programChange");
     }
+}
+
+//called when configuration changes - e.g. when headphones connected or disconnected
+-(void)onAudioConfigurationChange {
+    isInitialised = false;
+    NSLog(@"Audio config changed");
+    //reload sound font - not fully sure why this is necessary, but we end up with a default MIDI tone without.
+    if(_didLoadProgram) {
+        //relod the program that was last loaded
+        [self _loadSoundBankInstrumentAtURL:_instrumentURL program:_program bankMSB:_bankMSB bankLSB:_bankLSB];
+    } else {
+        //reload just the sound font
+        [self _loadInstrumentAtURL:_instrumentURL];
+    }
+
+    NSError *audioEngineStartError = nil;
+    [self.engine startAndReturnError:&audioEngineStartError];
+    if (audioEngineStartError) {
+        NSLog(@"Error starting audio engine:%@", audioEngineStartError.description);
+    }
+    NSLog(@"started audio engine");
+    isInitialised = true;
 }
 
 // send(status, data1, data2, delay)
