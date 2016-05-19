@@ -54,37 +54,32 @@
 
 // loadSoundFont(name)
 -(void)loadSoundFont:(CDVInvokedUrlCommand*)command {
-    [self.commandDelegate runInBackground:^{
-        if (!isInitialised) {
-            [self setup:NULL];
-        }
-        NSString *name = [command.arguments objectAtIndex:0];
-        NSBundle *mainBundle = [NSBundle mainBundle];
-        _instrumentURL = [mainBundle URLForResource:name withExtension:@"sf2" subdirectory:@"www/soundfont"];
-        NSString* result = [self _loadInstrumentAtURL:_instrumentURL];
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:result];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    }];
+    if (!isInitialised) {
+        [self setup:NULL];
+    }
+    NSString *name = [command.arguments objectAtIndex:0];
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    _instrumentURL = [mainBundle URLForResource:name withExtension:@"sf2" subdirectory:@"www/soundfont"];
+    NSString* result = [self _loadInstrumentAtURL:_instrumentURL];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:result];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 // loadSoundFontBank(name, program, bankMSB, bankLSB)
 -(void)loadSoundFontBank:(CDVInvokedUrlCommand*)command {
-    [self.commandDelegate runInBackground:^{
-        if (!isInitialised) {
-            [self setup:NULL];
-        }
-        NSString *name = [command.arguments objectAtIndex:0];
-        _program = [[command.arguments objectAtIndex:1] intValue];
-        _bankMSB = [[command.arguments objectAtIndex:2] intValue];
-        _bankLSB = [[command.arguments objectAtIndex:3] intValue];
-        NSBundle *mainBundle = [NSBundle mainBundle];
-        _instrumentURL = [mainBundle URLForResource:name withExtension:@"sf2" subdirectory:@"www/soundfont"];
-        NSString *result = [self _loadSoundBankInstrumentAtURL:_instrumentURL program:_program bankMSB:_bankMSB bankLSB:_bankLSB];
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:result];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    }];
+    if (!isInitialised) {
+        [self setup:NULL];
+    }
+    NSString *name = [command.arguments objectAtIndex:0];
+    _program = [[command.arguments objectAtIndex:1] intValue];
+    _bankMSB = [[command.arguments objectAtIndex:2] intValue];
+    _bankLSB = [[command.arguments objectAtIndex:3] intValue];
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    _instrumentURL = [mainBundle URLForResource:name withExtension:@"sf2" subdirectory:@"www/soundfont"];
+    NSString *result = [self _loadSoundBankInstrumentAtURL:_instrumentURL program:_program bankMSB:_bankMSB bankLSB:_bankLSB];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:result];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
-
 
 -(NSString*)_loadInstrumentAtURL:(NSURL*)instrumentURL {
     NSError *soundFontLoadError = nil;
@@ -124,7 +119,15 @@
         Byte bankMSB = [[command.arguments objectAtIndex:1] intValue];
         Byte bankLSB = [[command.arguments objectAtIndex:2] intValue];
         Byte channel = [[command.arguments objectAtIndex:3] intValue];
-        [self.instrument sendProgramChange:program bankMSB:bankMSB bankLSB:bankLSB onChannel:channel];
+        // [self.instrument sendProgramChange:program bankMSB:bankMSB bankLSB:bankLSB onChannel:channel];
+        // Using the programChange message doesn't appear to work, but it is possible to specify a program when loading the soundfont
+        //if this represents an actual change, reload the sound font with the different bank.
+        if(program != _program || bankMSB != _bankMSB || bankLSB != _bankLSB) {
+            _program = program;
+            _bankMSB = bankMSB;
+            _bankLSB = bankLSB;
+            [self _loadSoundBankInstrumentAtURL:_instrumentURL program:program bankMSB:bankMSB bankLSB:bankLSB];
+        }
     } else {
         NSLog(@"No sound font loaded. Cannot use programChange");
     }
