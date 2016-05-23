@@ -24,6 +24,9 @@ proto.expression = function(expression) {
 };
 
 proto.programChange = function(program, bankMSB, bankLSB, channel) {
+    //use default bank numbers if none specified
+    if(bankMSB==null) { bankMSB = 0x79; }
+    if(bankLSB==null) { bankLSB = 0; }
     exec(null, onError, 'Instrument', 'programChange', [program, bankMSB, bankLSB, channel || 0]);
 };
 
