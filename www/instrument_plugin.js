@@ -44,7 +44,7 @@ proto.loadSoundFontBank = function(name, program, bankMSB, bankLSB, onsuccess, o
 };
 
 proto.pitchBend = function(pitchBend, channel) {
-    if (pitchBend) {
+    if (pitchBend !== null) {
       pitchBendUnits = parseInt(UNITS_PER_SEMITONE * pitchBend) + PITCHBEND_ZERO_VALUE;
       exec(null, onError, 'Instrument', 'pitchBend', [pitchBendUnits, channel || 0]);
     }
