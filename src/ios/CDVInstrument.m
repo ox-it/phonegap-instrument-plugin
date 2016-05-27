@@ -34,6 +34,8 @@
     
     // create instrument
     self.instrument = [[AVAudioUnitSampler alloc] init];
+    self.instrument.masterGain = 3.0;
+
     [self.engine attachNode:self.instrument];
     [self.engine connect:self.instrument to:self.engine.outputNode format:NULL];
     [self.engine prepare];
