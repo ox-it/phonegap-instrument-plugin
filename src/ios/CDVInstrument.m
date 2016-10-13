@@ -43,9 +43,10 @@
     NSError *audioEngineStartError = nil;
     [self.engine startAndReturnError:&audioEngineStartError];
     if (audioEngineStartError) {
+        #ifdef DEBUG
         NSLog(@"Error starting audio engine:%@", audioEngineStartError.description);
+        #endif
     }
-    NSLog(@"started audio engine");
     isInitialised = true;
     
     [[NSNotificationCenter defaultCenter] addObserver: self
@@ -86,7 +87,6 @@
 -(NSString*)_loadInstrumentAtURL:(NSURL*)instrumentURL {
     NSError *soundFontLoadError = nil;
     [self.instrument loadInstrumentAtURL:instrumentURL error:&soundFontLoadError];
-    ///
     NSString *payload = nil;
     if (soundFontLoadError) {
         payload = @"Error loading sound font:%@", soundFontLoadError.description;
@@ -94,7 +94,6 @@
         payload = @"Loaded sound font";
         hasSoundFont = true;
     }
-    NSLog(payload);
     return payload;
 }
 
@@ -102,7 +101,7 @@
     
     NSError *soundFontLoadError = nil;
     [self.instrument loadSoundBankInstrumentAtURL:_instrumentURL program:program bankMSB:bankMSB bankLSB:bankLSB error:&soundFontLoadError];
-    ///
+
     NSString *payload = nil;
     if (soundFontLoadError) {
         payload = @"Error loading sound font:%@", soundFontLoadError.description;
@@ -110,7 +109,6 @@
         payload = @"Loaded sound font";
         hasSoundFont = true;
     }
-    NSLog(payload);
     return payload;
 }
 
@@ -123,7 +121,7 @@
         Byte channel = [[command.arguments objectAtIndex:3] intValue];
         // [self.instrument sendProgramChange:program bankMSB:bankMSB bankLSB:bankLSB onChannel:channel];
         // Using the programChange message doesn't appear to work, but it is possible to specify a program when loading the soundfont
-        //if this represents an actual change, reload the sound font with the different bank.
+        // if this represents an actual change, reload the sound font with the different bank.
         if(program != _program || bankMSB != _bankMSB || bankLSB != _bankLSB) {
             _program = program;
             _bankMSB = bankMSB;
@@ -131,14 +129,15 @@
             [self _loadSoundBankInstrumentAtURL:_instrumentURL program:program bankMSB:bankMSB bankLSB:bankLSB];
         }
     } else {
+        #ifdef DEBUG
         NSLog(@"No sound font loaded. Cannot use programChange");
+        #endif
     }
 }
 
 //called when configuration changes - e.g. when headphones connected or disconnected
 -(void)onAudioConfigurationChange {
     isInitialised = false;
-    NSLog(@"Audio config changed");
     //reload sound font - not fully sure why this is necessary, but we end up with a default MIDI tone without.
     if(_didLoadProgram) {
         //relod the program that was last loaded
@@ -151,9 +150,10 @@
     NSError *audioEngineStartError = nil;
     [self.engine startAndReturnError:&audioEngineStartError];
     if (audioEngineStartError) {
+        #ifdef DEBUG
         NSLog(@"Error starting audio engine:%@", audioEngineStartError.description);
+        #endif
     }
-    NSLog(@"started audio engine");
     isInitialised = true;
 }
 
@@ -174,7 +174,9 @@
         }
     }
     else {
+        #ifdef DEBUG
         NSLog(@"No sound font loaded. Cannot send");
+        #endif
     }
 }
 
@@ -184,10 +186,11 @@
         Byte noteNumber = [[command.arguments objectAtIndex:0] intValue];
         Byte velocity = [[command.arguments objectAtIndex:1] intValue];
         Byte channel = [[command.arguments objectAtIndex:2] intValue];
-        NSLog(@"Playing Note %i with velocity %i", noteNumber, velocity);
         [self.instrument startNote:noteNumber withVelocity:velocity onChannel:channel];
     } else {
+        #ifdef DEBUG
         NSLog(@"No sound font loaded. Cannot use noteOn");
+        #endif
     }
 }
 
@@ -196,10 +199,11 @@
     if (hasSoundFont) {
         Byte noteNumber = [[command.arguments objectAtIndex:0] intValue];
         Byte channel = [[command.arguments objectAtIndex:1] intValue];
-        NSLog(@"Stopping Note %i", noteNumber);
         [self.instrument stopNote:noteNumber onChannel:channel];
     } else {
+        #ifdef DEBUG
         NSLog(@"No sound font loaded. Cannot use noteOff");
+        #endif
     }
     
 }
@@ -208,11 +212,12 @@
 - (void)expression:(CDVInvokedUrlCommand*)command {
     if (hasSoundFont) {
         int expression = [[command.arguments objectAtIndex:0] intValue];
-        NSLog(@"Applying expression %i", expression);
         [self.instrument sendController:11 withValue:expression onChannel:0];
     }
     else {
+        #ifdef DEBUG
         NSLog(@"No sound font loaded. Cannot change expression");
+        #endif
     }
 }
 
@@ -221,10 +226,11 @@
     if (hasSoundFont) {
         int pitchBend = [[command.arguments objectAtIndex:0] intValue];
         Byte channel = [[command.arguments objectAtIndex:1] intValue];
-        NSLog(@"PitchBend %i", pitchBend);
         [self.instrument sendPitchBend:pitchBend onChannel:channel];
     } else {
+        #ifdef DEBUG
         NSLog(@"No sound font loaded. Cannot use pitchBend");
+        #endif
     }
 }
 
