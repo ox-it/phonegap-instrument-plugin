@@ -7,6 +7,7 @@
 //
 
 #import "CDVInstrument.h"
+#import <sys/errno.h>
 
 @interface CDVInstrument ()
 {
@@ -86,6 +87,7 @@
 
 -(NSString*)_loadInstrumentAtURL:(NSURL*)instrumentURL {
     NSError *soundFontLoadError = nil;
+    errno = 0;
     [self.instrument loadInstrumentAtURL:instrumentURL error:&soundFontLoadError];
     NSString *payload = nil;
     if (soundFontLoadError) {
